@@ -13,10 +13,8 @@ download_model() {
     echo "Done."
 }
 
-# Создаем структуру директорий
 mkdir -p "${MODEL_DIR}/pose/body_25" "${MODEL_DIR}/pose/coco" "${MODEL_DIR}/pose/mpi" "${MODEL_DIR}/face" "${MODEL_DIR}/hand"
 
-# Загружаем модели
 download_model "body_25" "pose_iter_584000.caffemodel" "${MODEL_DIR}/pose/body_25/pose_iter_584000.caffemodel"
 download_model "coco" "pose_iter_440000.caffemodel" "${MODEL_DIR}/pose/coco/pose_iter_440000.caffemodel"
 download_model "mpi" "pose_iter_160000.caffemodel" "${MODEL_DIR}/pose/mpi/pose_iter_160000.caffemodel"
