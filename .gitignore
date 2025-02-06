@@ -1,0 +1,12 @@
+build/
+.vscode/
+*.user
+*.o
+*.so
+*.a
+*.dll
+*.exe
+*.bin
+*.swp
+*.cache
+models/
