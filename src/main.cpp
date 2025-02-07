@@ -51,15 +51,14 @@ void updateSplats(std::vector<Splat>& splats, const std::vector<cv::Point>& hand
                                  (255 - target.y * 255/height)) * COLOR_CHANGE_RATE;
         }
 
-        // Обновление позиции
+
         splat.position += splat.velocity;
-        splat.velocity *= 0.98f; // Замедление
+        splat.velocity *= 0.98f; 
 
         if (splat.position.x < 0 || splat.position.x > width) splat.velocity.x *= -1;
         if (splat.position.y < 0 || splat.position.y > height) splat.velocity.y *= -1;
     }
 }
-
 
 void drawSplats(cv::Mat& frame, const std::vector<Splat>& splats) {
     cv::Mat overlay = frame.clone();
@@ -77,20 +76,16 @@ int main() {
     cv::VideoCapture cap(0);
     if (!cap.isOpened()) return -1;
 
+
     op::Wrapper opWrapper{op::ThreadManagerMode::Asynchronous};
-    opWrapper.configure(op::WrapperStructPose{
-        op::PoseMode::Enabled, 
-        op::ModelComplexity::High, 
-        op::RenderMode::None,
-        op::ScaleMode::InputResolution,
-        op::Resolution{656, 368},
-        1, 
-        false, 
-        {}, 
-        op::ScaleMode::InputResolution,
-        true, 
-        0.3f, 
-        "models/"});
+    
+    op::WrapperStructPose poseConfig;
+    poseConfig.modelFolder = "models/";
+    poseConfig.poseModel = op::PoseModel::BODY_25;      
+    poseConfig.netInputSize = op::Point<int>{656, 368}; 
+    poseConfig.renderMode = op::RenderMode::None;
+    
+    opWrapper.configure(poseConfig);
     opWrapper.start();
 
     cv::Mat frame;
@@ -101,8 +96,9 @@ int main() {
         cap >> frame;
         if (frame.empty()) break;
 
-        auto inputImage = op::Matrix{
-            frame.data, frame.rows, frame.cols, op::MatrixType::BGR};
+        op::Matrix inputImage = op::Matrix::createFromExternalData(
+            frame.data, frame.rows, frame.cols, op::MatrixType::BGR);
+            
         auto output = opWrapper.emplaceAndPop(inputImage);
         
         std::vector<cv::Point> handPoints;
@@ -110,7 +106,9 @@ int main() {
             auto poseData = output->at(0)->getPose();
             const auto& keypoints = poseData.getKeypoints();
             
-            for (int hand : {4, 7}) {
+
+            const std::vector<int> handIndices = {4, 7};
+            for (int hand : handIndices) {
                 if (keypoints.getSize(0) > hand) {
                     handPoints.emplace_back(
                         keypoints[{0, hand, 0}], 
