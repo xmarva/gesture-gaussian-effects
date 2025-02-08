@@ -45,11 +45,11 @@ RUN cd openpose && \
       -DBUILD_PYTHON=OFF && \
     make -j$(nproc)
 
-RUN rm -rf build && \
-    mkdir -p build && \
-    cd build && \
-    cmake .. && \
-    make -j$(nproc)
+#RUN rm -rf build && \
+#    mkdir -p build && \
+#    cd build && \
+#    cmake .. && \
+#    make -j$(nproc)
 
 
 ENV DISPLAY=:0
