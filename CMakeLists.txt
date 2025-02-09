@@ -1,18 +1,19 @@
 cmake_minimum_required(VERSION 3.15)
 project(MagicSplats)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/openpose/CMakeLists.txt")
-    add_subdirectory(openpose)
+enable_testing()
+find_package(GTest REQUIRED)
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/3rdparty/openpose/CMakeLists.txt")
+    add_subdirectory(3rdparty/openpose)
 else()
     message(FATAL_ERROR "OpenPose submodule not found! Run 'git submodule update --init'")
 endif()
 
 set(MODEL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/models")
 set(MODEL_DEST_DIR "$<TARGET_FILE_DIR:${PROJECT_NAME}>/models")
-
 if(NOT EXISTS "${MODEL_SOURCE_DIR}")
     message(WARNING "Models directory not found! Download models first.")
 endif()
@@ -22,17 +23,24 @@ message(STATUS "OpenCV version: ${OpenCV_VERSION}")
 message(STATUS "OpenCV libraries: ${OpenCV_LIBS}")
 
 add_executable(${PROJECT_NAME} src/main.cpp)
-
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${OpenCV_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/openpose/include
-    ${CMAKE_BINARY_DIR}/openpose/caffe/distribute/include
+    ${CMAKE_SOURCE_DIR}/3rdparty/openpose/include
+    ${CMAKE_BINARY_DIR}/3rdparty/openpose/caffe/distribute/include
 )
-
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${OpenCV_LIBS}
     openpose
 )
+
+add_executable(${PROJECT_NAME}_test tests/test_opencv.cpp)
+target_link_libraries(${PROJECT_NAME}_test PRIVATE
+    ${OpenCV_LIBS}
+    GTest::GTest
+    GTest::Main
+)
+add_test(NAME ${PROJECT_NAME}_test COMMAND ${PROJECT_NAME}_test)
+
 
 add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory "${MODEL_DEST_DIR}"
