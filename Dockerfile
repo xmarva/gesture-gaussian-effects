@@ -5,9 +5,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libcudnn8=8.9.2.26-1+cuda11.8 \
     libcudnn8-dev=8.9.2.26-1+cuda11.8 \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     git \
@@ -23,30 +20,18 @@ RUN apt-get update && apt-get install -y \
     libopenblas-dev \
     liblapack-dev \
     python3-dev \
-    python3-pip \
     libgtk-3-dev \
     libgtest-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y --no-install-recommends gnupg2 curl ca-certificates && \
-    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub | apt-key add - && \
-    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
-    apt-get update && \
-    rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 COPY . .
 
-RUN echo "build/\n3rdparty/openpose/build/" > .dockerignore
+RUN chmod +x download_models.sh && ./download_models.sh
 
-RUN chmod +x download_models.sh
-
-RUN ./download_models.sh
-
+# Сборка OpenPose с установкой в систему
 RUN cd 3rdparty/openpose && \
-    rm -rf build && \
-    mkdir build && \
-    cd build && \
+    mkdir build && cd build && \
     cmake .. \
       -DBUILD_CAFFE=ON \
       -DDOWNLOAD_BODY_25_MODEL=OFF \
@@ -55,18 +40,15 @@ RUN cd 3rdparty/openpose && \
       -DDOWNLOAD_FACE_MODEL=OFF \
       -DDOWNLOAD_HAND_MODEL=OFF \
       -DBUILD_EXAMPLES=OFF \
-      -DBUILD_PYTHON=OFF && \
+      -DBUILD_PYTHON=OFF \
+      -DCMAKE_INSTALL_PREFIX=/usr/local \
+      -DBUILD_SHARED_LIBS=ON && \
+    make -j$(nproc) && \
+    make install
+
+# Сборка основного проекта
+RUN mkdir -p build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
     make -j$(nproc)
-
-ENV DISPLAY=:0
-RUN apt-get update && apt-get install -y x11-apps
-
-#RUN rm -rf build && \
-#    mkdir -p build && \
-#    cd build && \
-#    cmake .. && \
-#    make -j$(nproc) && \
-#    ctest --output-on-failure
-
 
 CMD ["./build/MagicSplats"]
