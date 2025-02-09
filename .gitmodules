@@ -1,9 +1,6 @@
 [submodule "3rdparty/caffe"]
 	path = 3rdparty/caffe
 	url = https://github.com/CMU-Perceptual-Computing-Lab/caffe.git
-[submodule "openpose"]
-    path = 3rdparty/openpose 
-    url = https://github.com/CMU-Perceptual-Computing-Lab/openpose
 [submodule "3rdparty/openpose"]
 	path = 3rdparty/openpose
 	url = https://github.com/CMU-Perceptual-Computing-Lab/openpose
