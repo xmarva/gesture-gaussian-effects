@@ -6,16 +6,6 @@ Real-time / recorded video gesture recognition system with system control and ma
 
 Powered by OpenPose for pose estimation and Caffe for neural network processing.
 
-## Key Features
-- **Numerical Gestures**: Recognize digits 0-9
-- **System Control**:
-  - Media: Volume adjustment, play/pause, track skip
-  - Display: Brightness control, screen rotation
-- **Visual Effects**:
-  - Gaussian magic spheres generation
-  - Real-time color/position manipulation
-  - Gesture-activated particle effects
-
 ## Project Structure
 ```
 .
