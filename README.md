@@ -1,4 +1,3 @@
-```markdown
 # gesture-gaussian-effects
 
 ![Gesture Demo](imgs/gestures.gif)
